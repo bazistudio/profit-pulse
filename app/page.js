@@ -1,65 +1,121 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import PlatformPills from "@/components/PlatformPills";
+import InputCard from "@/components/InputCard";
+import SummaryCard from "@/components/SummaryCard";
+import BreakdownCard from "@/components/BreakdownCard";
 
 export default function Home() {
+  // State for product details
+  const [entry, setEntry] = useState({
+    quantity: 10,
+    price: 25,
+    shipping: 5,
+    material: 8.5,
+    platformFee: 2.5,
+    packaging: 1.25,
+    transaction: 1,
+    marketing: 3,
+    tax: 5,
+    extra: 0, // New Extra Cost
+    calculate: false,
+  });
+
+  // State for summary
+  const [summary, setSummary] = useState({
+    revenue: 0,
+    expense: 0,
+    profit: 0,
+    margin: 0,
+  });
+
+  // State for breakdown
+  const [breakdown, setBreakdown] = useState({
+    material: 0,
+    shipping: 0,
+    platformFee: 0,
+    marketing: 0,
+    tax: 0,
+    extra: 0, // Include extra in breakdown
+  });
+
+  // Yearly Data for SummaryCard chart
+  const [yearlyData, setYearlyData] = useState([
+    { month: "Jan", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Feb", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Mar", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Apr", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "May", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Jun", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Jul", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Aug", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Sep", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Oct", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Nov", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+    { month: "Dec", revenue: 0, expense: 0, profit: 0, margin: 0, topItems: [] },
+  ]);
+
+  // Calculate profit whenever entry changes
+  useEffect(() => {
+    const {
+      quantity,
+      price,
+      shipping,
+      material,
+      platformFee,
+      packaging,
+      transaction,
+      marketing,
+      tax,
+      extra,
+      calculate,
+    } = entry;
+
+    if (!calculate) return;
+
+    const revenue = quantity * price;
+
+    const costPerUnit = shipping + material + platformFee + packaging + transaction + marketing + extra;
+    const totalExpense = costPerUnit * quantity + (revenue * (tax / 100));
+
+    const profit = revenue - totalExpense;
+    const margin = revenue ? (profit / revenue) * 100 : 0;
+
+    setSummary({ revenue, expense: totalExpense, profit, margin });
+    setBreakdown({ material, shipping, platformFee, marketing, tax, extra });
+
+    // Update current month in yearlyData dynamically
+    const currentMonthIndex = new Date().getMonth();
+    const updatedYearly = [...yearlyData];
+    updatedYearly[currentMonthIndex] = {
+      ...updatedYearly[currentMonthIndex],
+      revenue,
+      expense: totalExpense,
+      profit,
+      margin,
+      topItems: [{ name: "Sample Item", quantity }], // Replace with real top items logic
+    };
+    setYearlyData(updatedYearly);
+
+    // Reset calculate flag
+    setEntry((prev) => ({ ...prev, calculate: false }));
+  }, [entry]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Top Navbar */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-2">💹 Profit Pulse</h1>
+        <PlatformPills />
+      </div>
+
+      {/* Cards Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <InputCard entry={entry} onChange={setEntry} />
+        <SummaryCard yearlyData={yearlyData} />
+        <BreakdownCard data={breakdown} summary={summary} />
+      </div>
     </div>
   );
 }
