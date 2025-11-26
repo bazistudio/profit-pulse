@@ -70,25 +70,24 @@ export default function SummaryCard({ yearlyData }) {
       </div>
 
       {/* Trend Chart */}
-      <div className="mt-4 w-full" style={{ height: "200px", minHeight: "200px" }}>
+<div className="mt-4 w-full" style={{ minHeight: "200px" }}>
+  <ResponsiveContainer width="100%" height={200}>
+    <LineChart data={yearlyData}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+      <XAxis dataKey="month" />
+      <YAxis />
+      <Tooltip formatter={(value) => `$${value}`} />
+      <Line
+        type="monotone"
+        dataKey="margin"
+        stroke="#6366f1"
+        strokeWidth={2}
+        dot={{ r: 3 }}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
 
-        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-
-          <LineChart data={yearlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip formatter={(value) => `$${value}`} />
-            <Line
-              type="monotone"
-              dataKey="margin"
-              stroke="#6366f1"
-              strokeWidth={2}
-              dot={{ r: 3 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
 
       {/* Top Selling Items */}
       <div className="mt-2">
